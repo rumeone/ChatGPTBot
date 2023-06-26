@@ -3,7 +3,7 @@ import {ConfigService} from "@nestjs/config";
 
 const telegrafModuleOptions = (config: ConfigService): TelegrafModuleOptions => {
     return {
-        token: config.get('TELEGRAM_API'),
+        token: config.get<string>('TELEGRAM_API'),
     }
 }
 
