@@ -34,15 +34,15 @@ export class ChatgptService {
         this.apiKey = this.configService.get<string>('GPT_API');
     }
 
-    generateResponse(promt: string): Observable<string> {
+    generateResponse(content: string): Observable<string> {
         const headers = {
             'Content-type': 'application/json',
             'Authorization': `${this.apiKey}`
         };
         const data = {
             "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": "Say this is a test!"}],
-            "temperature": 0.7
+            messages: [{ role: 'user', content }],
+            "temperature": 1
         };
 
         return this.httpService.post<IGptAnswer>(this.gptUrl, data, { headers }).pipe(
