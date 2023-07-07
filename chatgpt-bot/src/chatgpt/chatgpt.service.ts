@@ -1,9 +1,9 @@
-import {Injectable, Logger} from '@nestjs/common';
-import {ConfigService} from "@nestjs/config";
-import {HttpService} from "@nestjs/axios";
-import {catchError, map, Observable, of} from "rxjs";
+import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Observable, catchError, map, of } from 'rxjs';
 
-interface IGptAnswer {
+interface GptAnswer {
     id: string;
     object: string;
     created: number;
@@ -26,26 +26,25 @@ interface IGptAnswer {
 @Injectable()
 export class ChatgptService {
     private readonly logger = new Logger(ChatgptService.name);
-    private gptUrl: string = '';
-    private apiKey: string = ''
+    private gptUrl;
+    private apiKey;
 
     constructor(private readonly configService: ConfigService, private readonly httpService: HttpService) {
-        this.gptUrl = 'https://api.openai.com/v1/models';
-        this.apiKey = this.configService.get<string>('GPT_API');
+        this.gptUrl = 'https://api.openai.com/v1/chat/completions';
+        this.apiKey = this.configService.get('GPT_API');
     }
 
     generateResponse(content: string): Observable<string> {
         const headers = {
-            'Content-type': 'application/json',
-            'Authorization': `${this.apiKey}`
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
         };
         const data = {
-            "model": "gpt-3.5-turbo",
+            model: 'gpt-3.5-turbo',
             messages: [{ role: 'user', content }],
-            "temperature": 1
+            temperature: 1,
         };
-
-        return this.httpService.post<IGptAnswer>(this.gptUrl, data, { headers }).pipe(
+        return this.httpService.post<GptAnswer>(this.gptUrl, data, { headers }).pipe(
             map(({ data }) => data.choices[0].message.content.trim()),
             catchError((err) => {
                 this.logger.error(err);
@@ -53,5 +52,4 @@ export class ChatgptService {
             }),
         );
     }
-
 }
